@@ -1,6 +1,6 @@
 class sequence(object):
 
-    def __init__(self, seq, n, id = -1):
+    def __init__(self, seq, n = 15, id = -1):
         self.seq = seq
         self.id = id
         self.n = n
@@ -20,6 +20,9 @@ class sequence(object):
         return self.id
 
     def get_sequence(self):
+        return self.seq
+
+    def __str__(self):
         return self.seq
 
 
@@ -128,19 +131,84 @@ class ngram_map(object):
         for seq in sequences:
             self.add_sequence(seq, graph)
 
-def read_sequences(filename, n):
-    sequences = []
-    index = 0
-    inp_file = open(filename)
+    def examine_sequence(self, seq, hits = 5):
+        ngrams = self.graph.add_sequence(seq)[1]
+        candidates = {}
+        chosen_ids = []
 
-    for line in inp_file:
-        sequences.append(sequence(line[:-1], n, index))
-        index += 1
+        for ngram in ngrams:
+            
+            try:
+                for seq in self.word_map[ngram]:
+                    if seq in candidates:
+                        candidates[seq] += 1
+                    else:
+                        candidates[seq] = 0
 
-    inp_file.close()
-    return sequences
+            except KeyError:
+                pass
 
-sequences = read_sequences('sequences.txt', 15)
-my_map = ngram_map(sequences)
+        for seq in candidates:
+            if candidates[seq] >= hits:
+                chosen_ids.append(seq)
 
-print my_map.word_map
+        return chosen_ids
+
+
+class manipulations(object):
+
+    def __init__(self, filename, n, mismatches):
+        self.n = n #length of N-grams
+        self.index = 0
+        self.sequences = []
+        self.mismatches = mismatches
+        self.read_sequences(filename)
+        self.map = ngram_map(self.sequences)
+    
+    def similar_sequences(self, seq):
+        candidate_ids = self.map.examine_sequence(seq)
+        candidate_sequences = self.retrieve_sequences(candidate_ids)
+        chosen_sequences = []
+
+        for each in candidate_sequences:
+            if self.pairwise_comparison(seq, each):
+                chosen_sequences.append(each)
+
+        return chosen_sequences
+
+    def pairwise_comparison(self, seq1, seq2):
+        mismatches = 0
+        seq1 = seq1.get_sequence()
+        seq2 = seq2.get_sequence()
+        for i in xrange(len(seq1)):
+            if seq1[i] != seq2[i]:
+                mismatches += 1
+                
+        return mismatches <= self.mismatches
+
+    def retrieve_sequences(self, seq_ids):
+        sequences = []
+        if type(seq_ids) == int:
+            seq_ids = [seq_ids]
+
+        for each in seq_ids:
+            seq = self.sequences[each]
+            sequences.append(seq)
+
+        return sequences 
+
+    def read_sequences(self, filename):
+        inp_file = open(filename)
+    
+        for line in inp_file:
+            self.sequences.append(sequence(line[:-1], self.n, self.index))
+            self.index += 1
+
+        inp_file.close()
+
+test = manipulations ('sequences.txt', 15, 5)
+for seq in test.similar_sequences(sequence('cccccccccccccccccccccccccccccccccaaccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc')):
+    print seq
+    print len(seq.get_sequence())
+
+
