@@ -10,11 +10,12 @@ def sequences_generator(filename, sequence_len, sequences_number):
         for i in xrange(sequence_len):
             sequence += random.choice(nucleotides)
         sequence += '\n'
-        print sequence
-        print len(sequence)
     
         output.write(sequence)
+    
+    output.write('cccccccccccccccccccccccccccccccccaaccccccccccccccttccccccccccccccccccccccccccccccccccccccccccccccccc\n')
+    output.write('cccccccccccccccccccccccccccccccccaaccccccccccccccttccccccccccccccccccccgcccccccccccccccccccccccccccc\n')
 
     output.close()
 
-sequences_generator('yay', 100, 10000)
+sequences_generator('yay', 100, 1000)

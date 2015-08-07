@@ -1,3 +1,6 @@
+import time
+import pylab
+
 class sequence(object):
 
     def __init__(self, seq, n = 15, id = -1):
@@ -111,8 +114,11 @@ class ngram_map(object):
     '''
     def __init__(self, sequences):
         self.word_map = {}
+        print 'graph creation begins'
+        t1 = time.time()
         self.graph = graph()
         self.add_sequences(sequences, self.graph)
+        print 'graph creation ends, time = ' + str(time.time() - t1)
 
     def add_ngram(self, ngram_id, seq_id):
         try:
@@ -128,8 +134,16 @@ class ngram_map(object):
             self.add_ngram(ngram_id, seq_id)
 
     def add_sequences(self, sequences, graph):
+        index = 1
+        times = []
         for seq in sequences:
+            t1 = time.time()
             self.add_sequence(seq, graph)
+            tim = time.time() - t1
+            print str(index) + ' of 1000 sequences added, time = '+ str(tim)
+            times.append(tim)
+            index += 1
+        pylab.plot(times)
 
     def examine_sequence(self, seq, hits = 5):
         ngrams = self.graph.add_sequence(seq)[1]
@@ -163,6 +177,7 @@ class manipulations(object):
         self.sequences = []
         self.mismatches = mismatches
         self.read_sequences(filename)
+
         self.map = ngram_map(self.sequences)
     
     def similar_sequences(self, seq):
@@ -206,7 +221,7 @@ class manipulations(object):
 
         inp_file.close()
 
-test = manipulations ('sequences.txt', 15, 5)
+test = manipulations('yay', 15, 5)
 for seq in test.similar_sequences(sequence('cccccccccccccccccccccccccccccccccaaccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc')):
     print seq
     print len(seq.get_sequence())
