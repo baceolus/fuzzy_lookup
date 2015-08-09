@@ -230,30 +230,33 @@ class needle(object):
 
     def score_matrix(self):
         matrix = [[]]
-        
-        for i in xrange(len(seq1) + 1):
-            penalty = 0
-            matrix[[0]].append(penalty)
-            penalty -= 1
+        penalty1, penalty2 = 0, -1
 
-        for i in seq2:
+        for i in xrange(len(self.seq1) + 1):
+            matrix[0].append(penalty1)
+            penalty1 -= 1
+
+        for i in self.seq2:
             matrix.append([])
-            penalty = -1
-            matrix[-1].append(penalty)
-            penalty -= 1
+            matrix[-1].append(penalty2)
+            penalty2 -= 1
             
-            for j in seq1:
+            for j in self.seq1:
                 if i == j:
                     matrix[-1].append(0)
                 else:
                     matrix[-1].append(-1)
-
+        
+        print matrix
         return matrix
 
 
 test = manipulations('yay', 15, 5)
-sequence = sequence('cccccccccccccccccccccccccccccccccaaccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc')
-for seq in test.similar_sequences(sequence, test.pairwise_comparison):
+s = sequence('cccccccccccccccccccccccccccccccccaaccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc')
+for seq in test.similar_sequences(s, test.pairwise_comparison):
     print seq
 
+#seq1 = sequence('gatga')
+#seq2 = sequence('gtca')
+#need = needle(seq1, seq2)
 
