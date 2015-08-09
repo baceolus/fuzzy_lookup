@@ -1,5 +1,4 @@
 import time
-import pylab
 
 class sequence(object):
 
@@ -119,7 +118,7 @@ class ngram_map(object):
         self.graph = graph()
         self.sequences_quantity = str(len(sequences))
         self.add_sequences(sequences, self.graph)
-        print 'graph creation ends, time = ' + str(time.time() - t1)
+        print 'graph creation ends. Total time = ' + str(time.time() - t1)
 
     def add_ngram(self, ngram_id, seq_id):
         try:
@@ -136,17 +135,14 @@ class ngram_map(object):
 
     def add_sequences(self, sequences, graph):
         index = 1
-        times = []
         for seq in sequences:
             t1 = time.time()
             self.add_sequence(seq, graph)
             tim = time.time() - t1
             print str(index) + ' of ' + self.sequences_quantity + ' sequences added \
              \n time = '+ str(tim)
-            times.append(tim)
             index += 1
-        pylab.plot(times)
-
+        
     def examine_sequence(self, seq, hits = 5):
         '''
         takes all sequences and return only the ones
