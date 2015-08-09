@@ -25,6 +25,9 @@ class sequence(object):
     def get_sequence(self):
         return self.seq
 
+    def get_length(self):
+        return self.len
+
     def __str__(self):
         return self.seq
 
@@ -140,7 +143,7 @@ class ngram_map(object):
             t1 = time.time()
             self.add_sequence(seq, graph)
             tim = time.time() - t1
-            print str(index) + ' of 1000 sequences added, time = '+ str(tim)
+            print str(index) + ' of 102 sequences added, time = '+ str(tim)
             times.append(tim)
             index += 1
         pylab.plot(times)
@@ -171,35 +174,30 @@ class ngram_map(object):
 
 class manipulations(object):
 
-    def __init__(self, filename, n, mismatches):
+    def __init__(self, filename, n, treshold):
         self.n = n #length of N-grams
         self.index = 0
         self.sequences = []
-        self.mismatches = mismatches
+        self.treshold = treshold
         self.read_sequences(filename)
 
         self.map = ngram_map(self.sequences)
     
-    def similar_sequences(self, seq, comparison_fun):
+    def similar_sequences(self, seq, string_output = True):
         candidate_ids = self.map.examine_sequence(seq)
         candidate_sequences = self.retrieve_sequences(candidate_ids)
         chosen_sequences = []
 
         for each in candidate_sequences:
-            if comparison_fun(seq, each):
-                chosen_sequences.append(each)
+
+            mismatches = needle(seq, each).score()
+            if mismatches <= self.treshold:
+                if string_output:
+                    chosen_sequences.append([str(each), mismatches])
+                else:
+                    chosen_sequences.append([each, mismatches])
 
         return chosen_sequences
-
-    def pairwise_comparison(self, seq1, seq2):
-        mismatches = 0
-        seq1 = seq1.get_sequence()
-        seq2 = seq2.get_sequence()
-        for i in xrange(len(seq1)):
-            if seq1[i] != seq2[i]:
-                mismatches += 1
-                
-        return mismatches <= self.mismatches
 
     def retrieve_sequences(self, seq_ids):
         sequences = []
@@ -225,14 +223,16 @@ class needle(object):
 
     def __init__(self, seq1, seq2):
         self.seq1 = seq1.get_sequence()
+        self.seq1_len = seq1.get_length()
         self.seq2 = seq2.get_sequence()
-        self.score = self.score_matrix()
+        self.seq2_len = seq2.get_length()
+        self.matrix = self.score_matrix()
 
     def score_matrix(self):
         matrix = [[]]
         penalty1, penalty2 = 0, -1
 
-        for i in xrange(len(self.seq1) + 1):
+        for i in xrange(self.seq1_len + 1):
             matrix[0].append(penalty1)
             penalty1 -= 1
 
@@ -247,16 +247,28 @@ class needle(object):
                 else:
                     matrix[-1].append(-1)
         
-        print matrix
         return matrix
+
+    def score(self):
+        
+        for i in xrange(1, self.seq2_len + 1):
+        
+            for j in xrange(1, self.seq1_len + 1):
+                seq1_gap = self.matrix[i - 1][j] - 1
+                seq2_gap = self.matrix[i][j - 1] - 1
+                no_gap = self.matrix[i - 1][j - 1] + self.matrix[i][j]
+                self.matrix[i][j] = max(seq1_gap, seq2_gap, no_gap)
+
+        return abs(self.matrix[-1][-1])
+
+
+
+
 
 
 test = manipulations('yay', 15, 5)
 s = sequence('cccccccccccccccccccccccccccccccccaaccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc')
-for seq in test.similar_sequences(s, test.pairwise_comparison):
+for seq in test.similar_sequences(s):
     print seq
 
-#seq1 = sequence('gatga')
-#seq2 = sequence('gtca')
-#need = needle(seq1, seq2)
 
