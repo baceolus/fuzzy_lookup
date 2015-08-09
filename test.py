@@ -10,9 +10,6 @@ class sequence(object):
         self.len = len(seq)
 
     def cut_sequence(self):
-        '''
-        cut sequence into list of N-grams of length n
-        '''
         output = []
         for i in xrange(self.len- self.n + 1):
             output.append(self.seq[i:i + self.n])
@@ -120,6 +117,7 @@ class ngram_map(object):
         print 'graph creation begins'
         t1 = time.time()
         self.graph = graph()
+        self.sequences_quantity = str(len(sequences))
         self.add_sequences(sequences, self.graph)
         print 'graph creation ends, time = ' + str(time.time() - t1)
 
@@ -143,12 +141,17 @@ class ngram_map(object):
             t1 = time.time()
             self.add_sequence(seq, graph)
             tim = time.time() - t1
-            print str(index) + ' of 102 sequences added, time = '+ str(tim)
+            print str(index) + ' of ' + self.sequences_quantity + ' sequences added \
+             \n time = '+ str(tim)
             times.append(tim)
             index += 1
         pylab.plot(times)
 
     def examine_sequence(self, seq, hits = 5):
+        '''
+        takes all sequences and return only the ones
+        wich have at least 5(variable hits) common N-grams with query sequence
+        '''
         ngrams = self.graph.add_sequence(seq)[1]
         candidates = {}
         chosen_ids = []

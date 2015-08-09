@@ -14,7 +14,7 @@ def sequences_generator(filename, sequence_len, sequences_number):
         output.write(sequence)
     
     output.write('cccccccccccccccccccccccccccccccccaaccccccccccccccttccccccccccccccccccccccccccccccccccccccccccccccccc\n')
-    output.write('cccccccccccccccccccccccccccccccccaaccccccccccccccttccccccccccccccccccccgcccccccccccccccccccccccccccc\n')
+    output.write('ccccccccccccccccccccccccccccccccaaccccccccccccccttccccccccccccccccccccgcccccccccccccccccccccccccccc\n')
 
     output.close()
 
