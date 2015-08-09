@@ -180,13 +180,13 @@ class manipulations(object):
 
         self.map = ngram_map(self.sequences)
     
-    def similar_sequences(self, seq):
+    def similar_sequences(self, seq, comparison_fun):
         candidate_ids = self.map.examine_sequence(seq)
         candidate_sequences = self.retrieve_sequences(candidate_ids)
         chosen_sequences = []
 
         for each in candidate_sequences:
-            if self.pairwise_comparison(seq, each):
+            if comparison_fun(seq, each):
                 chosen_sequences.append(each)
 
         return chosen_sequences
@@ -221,9 +221,39 @@ class manipulations(object):
 
         inp_file.close()
 
+class needle(object):
+
+    def __init__(self, seq1, seq2):
+        self.seq1 = seq1.get_sequence()
+        self.seq2 = seq2.get_sequence()
+        self.score = self.score_matrix()
+
+    def score_matrix(self):
+        matrix = [[]]
+        
+        for i in xrange(len(seq1) + 1):
+            penalty = 0
+            matrix[[0]].append(penalty)
+            penalty -= 1
+
+        for i in seq2:
+            matrix.append([])
+            penalty = -1
+            matrix[-1].append(penalty)
+            penalty -= 1
+            
+            for j in seq1:
+                if i == j:
+                    matrix[-1].append(0)
+                else:
+                    matrix[-1].append(-1)
+
+        return matrix
+
+
 test = manipulations('yay', 15, 5)
-for seq in test.similar_sequences(sequence('cccccccccccccccccccccccccccccccccaaccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc')):
+sequence = sequence('cccccccccccccccccccccccccccccccccaaccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc')
+for seq in test.similar_sequences(sequence, test.pairwise_comparison):
     print seq
-    print len(seq.get_sequence())
 
 

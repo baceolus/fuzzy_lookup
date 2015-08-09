@@ -18,4 +18,4 @@ def sequences_generator(filename, sequence_len, sequences_number):
 
     output.close()
 
-sequences_generator('yay', 100, 1000)
+sequences_generator('yay', 100, 100)
